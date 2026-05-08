@@ -29,6 +29,7 @@ export default function App(): React.JSX.Element {
   useEffect(() => { requestPermission(); }, []);
 
   return (
+    <>
     <NavigationContainer>
       <StatusBar barStyle="light-content" backgroundColor={PINK} />
       <Tab.Navigator
@@ -60,5 +61,6 @@ export default function App(): React.JSX.Element {
       </Tab.Navigator>
     </NavigationContainer>
     <Toast />
+    </>
   );
 }
