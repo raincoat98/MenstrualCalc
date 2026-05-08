@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import {StatusBar} from 'react-native';
+import Toast from 'react-native-toast-message';
 import {requestPermission} from './src/notifications/notificationService';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -58,5 +59,6 @@ export default function App(): React.JSX.Element {
         <Tab.Screen name="설정" component={SettingsScreen} />
       </Tab.Navigator>
     </NavigationContainer>
+    <Toast />
   );
 }

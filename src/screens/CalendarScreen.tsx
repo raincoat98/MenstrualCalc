@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {View, Text, TouchableOpacity, ScrollView, StyleSheet, Platform, Modal, PanResponder} from 'react-native';
 import DateTimePicker, {DateTimePickerEvent} from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Toast from 'react-native-toast-message';
 import {useCycleStore} from '../store/cycleStore';
 import {PINK, PINK_PALE} from '../theme';
 
@@ -81,6 +82,7 @@ export default function CalendarScreen(): React.JSX.Element {
     addRecord(localPeriod);
     apply(localPeriod, storedCycle, storedPeriodLen);
     setPanelOpen(false);
+    Toast.show({type: 'success', text1: '달력에 적용됐어요', visibilityTime: 1800});
   };
 
   const prevMonth = () => {

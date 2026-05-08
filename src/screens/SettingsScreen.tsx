@@ -3,6 +3,7 @@ import {View, Text, TouchableOpacity, ScrollView, StyleSheet, Switch, Alert} fro
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useCycleStore} from '../store/cycleStore';
 import {PINK, PINK_PALE} from '../theme';
+import Toast from 'react-native-toast-message';
 import {scheduleNotifications, cancelAllNotifications, requestPermission} from '../notifications/notificationService';
 
 function SectionHeader({title}: {title: string}) {
@@ -63,6 +64,7 @@ export default function SettingsScreen(): React.JSX.Element {
     }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+    Toast.show({type: 'success', text1: '저장됐어요', text2: '설정이 적용됐어요', visibilityTime: 2000});
   };
 
   return (

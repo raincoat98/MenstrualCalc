@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import DateTimePicker, {DateTimePickerEvent} from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Toast from 'react-native-toast-message';
 import {useCycleStore, PeriodRecord} from '../store/cycleStore';
 import {PINK, PINK_PALE, PINK_LIGHT} from '../theme';
 
@@ -65,6 +66,7 @@ export default function RecordsScreen(): React.JSX.Element {
           return;
         }
         addRecord(date);
+        Toast.show({type: 'success', text1: '기록이 추가됐어요', visibilityTime: 1800});
       }
     } else {
       if (date) setTempDate(date);
@@ -90,7 +92,7 @@ export default function RecordsScreen(): React.JSX.Element {
       `${formatDate(record.startDate)} 기록을 삭제할까요?`,
       [
         {text: '취소', style: 'cancel'},
-        {text: '삭제', style: 'destructive', onPress: () => deleteRecord(record.id)},
+        {text: '삭제', style: 'destructive', onPress: () => { deleteRecord(record.id); Toast.show({type: 'error', text1: '기록이 삭제됐어요', visibilityTime: 1800}); }},
       ],
     );
   };

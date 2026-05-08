@@ -15,6 +15,7 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Toast from 'react-native-toast-message';
 import {PINK, PINK_LIGHT, PINK_PALE} from '../theme';
 import {useCycleStore} from '../store/cycleStore';
 
@@ -97,6 +98,7 @@ export default function CalculatorScreen(): React.JSX.Element {
     setResult(r);
     apply(lastPeriod, cycleLength, periodLength);
     addRecord(lastPeriod);
+    Toast.show({type: 'success', text1: '계산 완료!', text2: '다음 주기가 계산됐어요', visibilityTime: 2000});
   };
 
   const handleReset = () => {
