@@ -217,11 +217,11 @@ export default function CalculatorScreen(): React.JSX.Element {
               <View style={styles.resultCardRow}>
                 <View style={styles.resultCardLabelRow}>
                   <Icon name="water" size={15} color="#C2185B" style={{marginRight: 5}} />
-                  <Text style={[styles.resultCardLabel, {color: '#C2185B'}]}>다음 생리 예정일</Text>
+                  <Text style={[styles.resultCardLabel, {color: '#F43F5E'}]}>다음 생리 예정일</Text>
                 </View>
                 <Icon name={expandedCard === 'nextPeriod' ? 'chevron-up' : 'chevron-down'} size={18} color="#aaa" />
               </View>
-              <Text style={[styles.resultCardDate, {color: '#880E4F'}]}>{formatDate(result.nextPeriod)}</Text>
+              <Text style={[styles.resultCardDate, {color: '#E11D48'}]}>{formatDate(result.nextPeriod)}</Text>
               <Text style={styles.resultCardSub}>
                 {result.daysUntilNext > 0
                   ? `${result.daysUntilNext}일 후`
@@ -235,7 +235,7 @@ export default function CalculatorScreen(): React.JSX.Element {
                   <View style={styles.foodSection}>
                     <View style={styles.foodTitleRow}>
                       <Icon name="food-apple" size={14} color="#C2185B" style={{marginRight: 4}} />
-                      <Text style={[styles.foodTitle, {color: '#C2185B'}]}>추천 음식</Text>
+                      <Text style={[styles.foodTitle, {color: '#F43F5E'}]}>추천 음식</Text>
                     </View>
                     <Text style={styles.foodItem}>• 마그네슘 (생리통 완화) — 바나나, 아몬드, 다크초콜릿</Text>
                     <Text style={styles.foodItem}>• 오메가3 (염증 완화) — 연어, 고등어, 아마씨</Text>
@@ -250,18 +250,18 @@ export default function CalculatorScreen(): React.JSX.Element {
               <View style={styles.resultCardRow}>
                 <View style={styles.resultCardLabelRow}>
                   <Icon name="egg" size={15} color="#7B1FA2" style={{marginRight: 5}} />
-                  <Text style={[styles.resultCardLabel, {color: '#7B1FA2'}]}>배란 예정일</Text>
+                  <Text style={[styles.resultCardLabel, {color: '#8B5CF6'}]}>배란 예정일</Text>
                 </View>
                 <Icon name={expandedCard === 'ovulation' ? 'chevron-up' : 'chevron-down'} size={18} color="#aaa" />
               </View>
-              <Text style={[styles.resultCardDate, {color: '#4A148C'}]}>{formatDate(result.ovulation)}</Text>
+              <Text style={[styles.resultCardDate, {color: '#7C3AED'}]}>{formatDate(result.ovulation)}</Text>
               {expandedCard === 'ovulation' && (
                 <>
                   <Text style={styles.resultCardDesc}>난자가 방출되는 날로, 임신 가능성이 가장 높은 시기입니다.</Text>
                   <View style={styles.foodSection}>
                     <View style={styles.foodTitleRow}>
                       <Icon name="food-apple" size={14} color="#7B1FA2" style={{marginRight: 4}} />
-                      <Text style={[styles.foodTitle, {color: '#7B1FA2'}]}>추천 음식</Text>
+                      <Text style={[styles.foodTitle, {color: '#8B5CF6'}]}>추천 음식</Text>
                     </View>
                     <Text style={styles.foodItem}>• 엽산 — 시금치, 아스파라거스, 브로콜리</Text>
                     <Text style={styles.foodItem}>• 아연 — 굴, 호박씨, 쇠고기</Text>
@@ -275,11 +275,11 @@ export default function CalculatorScreen(): React.JSX.Element {
               <View style={styles.resultCardRow}>
                 <View style={styles.resultCardLabelRow}>
                   <Icon name="sprout" size={15} color="#2E7D32" style={{marginRight: 5}} />
-                  <Text style={[styles.resultCardLabel, {color: '#2E7D32'}]}>가임기</Text>
+                  <Text style={[styles.resultCardLabel, {color: '#10B981'}]}>가임기</Text>
                 </View>
                 <Icon name={expandedCard === 'fertile' ? 'chevron-up' : 'chevron-down'} size={18} color="#aaa" />
               </View>
-              <Text style={[styles.resultCardDate, {color: '#1B5E20'}]}>
+              <Text style={[styles.resultCardDate, {color: '#059669'}]}>
                 {formatDateShort(result.fertileStart)} ~ {formatDateShort(result.fertileEnd)}
               </Text>
               <Text style={styles.resultCardSub}>
@@ -291,7 +291,7 @@ export default function CalculatorScreen(): React.JSX.Element {
                   <View style={styles.foodSection}>
                     <View style={styles.foodTitleRow}>
                       <Icon name="food-apple" size={14} color="#2E7D32" style={{marginRight: 4}} />
-                      <Text style={[styles.foodTitle, {color: '#2E7D32'}]}>추천 음식</Text>
+                      <Text style={[styles.foodTitle, {color: '#10B981'}]}>추천 음식</Text>
                     </View>
                     <Text style={styles.foodItem}>• 철분 — 시금치, 렌틸콩, 두부</Text>
                     <Text style={styles.foodItem}>• 비타민 E — 아몬드, 해바라기씨, 아보카도</Text>
@@ -305,11 +305,11 @@ export default function CalculatorScreen(): React.JSX.Element {
               <View style={styles.resultCardRow}>
                 <View style={styles.resultCardLabelRow}>
                   <Icon name="shield-check" size={15} color="#1565C0" style={{marginRight: 5}} />
-                  <Text style={[styles.resultCardLabel, {color: '#1565C0'}]}>안전기 (생리 후)</Text>
+                  <Text style={[styles.resultCardLabel, {color: '#3B82F6'}]}>안전기 (생리 후)</Text>
                 </View>
                 <Icon name={expandedCard === 'safe' ? 'chevron-up' : 'chevron-down'} size={18} color="#aaa" />
               </View>
-              <Text style={[styles.resultCardDate, {color: '#0D47A1'}]}>
+              <Text style={[styles.resultCardDate, {color: '#2563EB'}]}>
                 {formatDateShort(result.safeStart)} ~ {formatDateShort(result.safeEnd)}
               </Text>
               <Text style={styles.resultCardSub}>
@@ -321,7 +321,7 @@ export default function CalculatorScreen(): React.JSX.Element {
                   <View style={styles.foodSection}>
                     <View style={styles.foodTitleRow}>
                       <Icon name="food-apple" size={14} color="#1565C0" style={{marginRight: 4}} />
-                      <Text style={[styles.foodTitle, {color: '#1565C0'}]}>추천 음식</Text>
+                      <Text style={[styles.foodTitle, {color: '#3B82F6'}]}>추천 음식</Text>
                     </View>
                     <Text style={styles.foodItem}>• 칼슘 — 우유, 치즈, 두부</Text>
                     <Text style={styles.foodItem}>• 프로바이오틱스 — 요거트, 김치, 된장</Text>
@@ -449,10 +449,10 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
-  nextPeriodCard: {backgroundColor: '#FFF0F5', borderColor: '#F06292'},
-  ovulationCard: {backgroundColor: '#F5EEFF', borderColor: '#AB47BC'},
-  fertileCard: {backgroundColor: '#EDFBEE', borderColor: '#66BB6A'},
-  safeCard: {backgroundColor: '#EFF5FF', borderColor: '#5C9CE5'},
+  nextPeriodCard: {backgroundColor: '#FFF1F3', borderColor: '#F43F5E'},
+  ovulationCard: {backgroundColor: '#F3EEFF', borderColor: '#8B5CF6'},
+  fertileCard: {backgroundColor: '#ECFDF5', borderColor: '#10B981'},
+  safeCard: {backgroundColor: '#EFF6FF', borderColor: '#3B82F6'},
   resultCardLabel: {fontSize: 13, color: '#666', marginBottom: 6, fontWeight: '500'},
   resultCardDate: {fontSize: 20, fontWeight: '700', color: '#222', marginBottom: 4},
   resultCardSub: {fontSize: 13, color: '#888'},

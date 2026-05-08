@@ -1,4 +1,4 @@
-export const PINK = '#C2185B';
-export const PINK_LIGHT = '#F8BBD9';
-export const PINK_PALE = '#FCE4EC';
-export const BG = '#FFF5F8';
+export const PINK = '#F43F5E';
+export const PINK_LIGHT = '#FDA4AF';
+export const PINK_PALE = '#FFF1F3';
+export const BG = '#FFF8F9';

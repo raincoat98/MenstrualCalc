@@ -12,11 +12,11 @@ function formatDate(date: Date): string {
 type DayPhase = 'period' | 'ovulation' | 'fertile' | 'safe' | 'luteal';
 
 const PHASE_STYLE: Record<DayPhase, {bg: string; text: string; label: string}> = {
-  period:    {bg: '#FFCDD2', text: '#C2185B', label: '생리'},
-  ovulation: {bg: '#CE93D8', text: '#4A148C', label: '배란'},
-  fertile:   {bg: '#C8E6C9', text: '#1B5E20', label: '가임기'},
-  safe:      {bg: '#BBDEFB', text: '#0D47A1', label: '안전기'},
-  luteal:    {bg: 'transparent', text: '#333', label: ''},
+  period:    {bg: '#FFD6DE', text: '#F43F5E', label: '생리'},
+  ovulation: {bg: '#EDE9FE', text: '#7C3AED', label: '배란'},
+  fertile:   {bg: '#D1FAE5', text: '#059669', label: '가임기'},
+  safe:      {bg: '#DBEAFE', text: '#2563EB', label: '안전기'},
+  luteal:    {bg: 'transparent', text: '#555', label: ''},
 };
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
