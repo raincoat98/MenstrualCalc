@@ -7,6 +7,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {enableScreens} from 'react-native-screens';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {PINK} from './src/theme';
+import {useAppTheme} from './src/hooks/useAppTheme';
 import CalculatorScreen from './src/screens/CalculatorScreen';
 import CalendarScreen from './src/screens/CalendarScreen';
 import TodayScreen from './src/screens/TodayScreen';
@@ -27,6 +28,7 @@ const ICONS: Record<string, string> = {
 
 export default function App(): React.JSX.Element {
   useEffect(() => { requestPermission(); }, []);
+  const {C, isDark} = useAppTheme();
 
   return (
     <>
@@ -36,10 +38,10 @@ export default function App(): React.JSX.Element {
         screenOptions={({route}) => ({
           headerShown: false,
           tabBarActiveTintColor: PINK,
-          tabBarInactiveTintColor: '#bbb',
+          tabBarInactiveTintColor: isDark ? '#606080' : '#bbb',
           tabBarStyle: {
-            backgroundColor: '#fff',
-            borderTopColor: '#f0e0e6',
+            backgroundColor: C.tabBar,
+            borderTopColor: C.tabBarBorder,
             borderTopWidth: 1,
             paddingBottom: 4,
             height: 58,

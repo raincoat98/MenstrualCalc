@@ -6,6 +6,8 @@ export interface PeriodRecord {
 }
 
 interface CycleState {
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
   lastPeriod: Date;
   cycleLength: number;
   periodLength: number;
@@ -29,6 +31,8 @@ interface CycleState {
 }
 
 export const useCycleStore = create<CycleState>((set, get) => ({
+  isDarkMode: false,
+  toggleDarkMode: () => set(s => ({isDarkMode: !s.isDarkMode})),
   lastPeriod: new Date(),
   cycleLength: 28,
   periodLength: 5,

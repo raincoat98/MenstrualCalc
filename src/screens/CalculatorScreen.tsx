@@ -18,6 +18,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Toast from 'react-native-toast-message';
 import {PINK, PINK_LIGHT, PINK_PALE} from '../theme';
 import {useCycleStore} from '../store/cycleStore';
+import {useAppTheme} from '../hooks/useAppTheme';
 
 interface CycleResult {
   nextPeriod: Date;
@@ -59,6 +60,7 @@ function calcCycle(lastPeriod: Date, cycleLength: number, periodLength: number):
 }
 
 export default function CalculatorScreen(): React.JSX.Element {
+  const {C, isDark} = useAppTheme();
   const {apply, addRecord, cycleLength, setCycleLength, periodLength, setPeriodLength, lastPeriod: storedLastPeriod, hasData, reset} = useCycleStore();
   const [lastPeriod, setLastPeriod] = useState<Date>(hasData ? storedLastPeriod : new Date());
   const [result, setResult] = useState<CycleResult | null>(null);
@@ -119,10 +121,12 @@ export default function CalculatorScreen(): React.JSX.Element {
     ]);
   };
 
+  const cardBg = (light: string, dark: string) => (isDark ? dark : light);
+
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, {backgroundColor: PINK}]}>
       <StatusBar barStyle="light-content" backgroundColor={PINK} />
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={[styles.scroll, {backgroundColor: C.bg}]} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
             <Icon name="refresh" size={18} color="rgba(255,255,255,0.8)" />
@@ -133,10 +137,10 @@ export default function CalculatorScreen(): React.JSX.Element {
           <Text style={styles.headerSub}>날짜를 입력하고 다음 주기를 확인하세요</Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>마지막 생리 시작일</Text>
+        <View style={[styles.card, {backgroundColor: C.card}]}>
+          <Text style={[styles.label, {color: C.text}]}>마지막 생리 시작일</Text>
           <TouchableOpacity
-            style={styles.dateButton}
+            style={[styles.dateButton, {backgroundColor: isDark ? '#3a1020' : PINK_PALE}]}
             onPress={() => {
               setTempDate(lastPeriod);
               setShowPicker(true);
@@ -157,12 +161,12 @@ export default function CalculatorScreen(): React.JSX.Element {
 
           <Modal visible={showPicker && Platform.OS === 'ios'} transparent animationType="slide">
             <View style={styles.modalOverlay}>
-              <View style={styles.modalContent}>
-                <View style={styles.modalHeader}>
+              <View style={[styles.modalContent, {backgroundColor: C.card}]}>
+                <View style={[styles.modalHeader, {borderBottomColor: C.border}]}>
                   <TouchableOpacity onPress={() => setShowPicker(false)}>
-                    <Text style={styles.modalCancel}>취소</Text>
+                    <Text style={[styles.modalCancel, {color: C.hint}]}>취소</Text>
                   </TouchableOpacity>
-                  <Text style={styles.modalTitle}>날짜 선택</Text>
+                  <Text style={[styles.modalTitle, {color: C.text}]}>날짜 선택</Text>
                   <TouchableOpacity onPress={confirmIOSDate}>
                     <Text style={styles.modalConfirm}>확인</Text>
                   </TouchableOpacity>
@@ -180,51 +184,54 @@ export default function CalculatorScreen(): React.JSX.Element {
           </Modal>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>생리 주기 (일)</Text>
+        <View style={[styles.card, {backgroundColor: C.card}]}>
+          <Text style={[styles.label, {color: C.text}]}>생리 주기 (일)</Text>
           <View style={styles.stepper}>
             <TouchableOpacity style={styles.stepBtn} onPress={() => setCycleLength(Math.max(21, cycleLength - 1))}>
               <Text style={styles.stepBtnText}>−</Text>
             </TouchableOpacity>
-            <Text style={styles.stepValue}>{cycleLength}일</Text>
+            <Text style={[styles.stepValue, {color: C.text}]}>{cycleLength}일</Text>
             <TouchableOpacity style={styles.stepBtn} onPress={() => setCycleLength(Math.min(45, cycleLength + 1))}>
               <Text style={styles.stepBtnText}>+</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.hint}>일반적인 주기: 21~35일</Text>
+          <Text style={[styles.hint, {color: C.hint}]}>일반적인 주기: 21~35일</Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>생리 기간 (일)</Text>
+        <View style={[styles.card, {backgroundColor: C.card}]}>
+          <Text style={[styles.label, {color: C.text}]}>생리 기간 (일)</Text>
           <View style={styles.stepper}>
             <TouchableOpacity style={styles.stepBtn} onPress={() => setPeriodLength(Math.max(2, periodLength - 1))}>
               <Text style={styles.stepBtnText}>−</Text>
             </TouchableOpacity>
-            <Text style={styles.stepValue}>{periodLength}일</Text>
+            <Text style={[styles.stepValue, {color: C.text}]}>{periodLength}일</Text>
             <TouchableOpacity style={styles.stepBtn} onPress={() => setPeriodLength(Math.min(10, periodLength + 1))}>
               <Text style={styles.stepBtnText}>+</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.hint}>일반적인 기간: 3~7일</Text>
+          <Text style={[styles.hint, {color: C.hint}]}>일반적인 기간: 3~7일</Text>
         </View>
 
         {result && (
           <View style={styles.resultContainer}>
             <View style={styles.resultTitleRow}>
-              <Icon name="chart-bar" size={20} color="#333" style={{marginRight: 6}} />
-              <Text style={styles.resultTitle}>계산 결과</Text>
+              <Icon name="chart-bar" size={20} color={C.text} style={{marginRight: 6}} />
+              <Text style={[styles.resultTitle, {color: C.text}]}>계산 결과</Text>
             </View>
 
-            <TouchableOpacity style={[styles.resultCard, styles.nextPeriodCard]} onPress={() => toggleCard('nextPeriod')} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={[styles.resultCard, {backgroundColor: cardBg('#FFF1F3', '#2a0d14'), borderColor: '#F43F5E'}]}
+              onPress={() => toggleCard('nextPeriod')}
+              activeOpacity={0.8}>
               <View style={styles.resultCardRow}>
                 <View style={styles.resultCardLabelRow}>
                   <Icon name="water" size={15} color="#C2185B" style={{marginRight: 5}} />
                   <Text style={[styles.resultCardLabel, {color: '#F43F5E'}]}>다음 생리 예정일</Text>
                 </View>
-                <Icon name={expandedCard === 'nextPeriod' ? 'chevron-up' : 'chevron-down'} size={18} color="#aaa" />
+                <Icon name={expandedCard === 'nextPeriod' ? 'chevron-up' : 'chevron-down'} size={18} color={C.hint} />
               </View>
               <Text style={[styles.resultCardDate, {color: '#E11D48'}]}>{formatDate(result.nextPeriod)}</Text>
-              <Text style={styles.resultCardSub}>
+              <Text style={[styles.resultCardSub, {color: C.subtext}]}>
                 {result.daysUntilNext > 0
                   ? `${result.daysUntilNext}일 후`
                   : result.daysUntilNext === 0
@@ -233,116 +240,125 @@ export default function CalculatorScreen(): React.JSX.Element {
               </Text>
               {expandedCard === 'nextPeriod' && (
                 <>
-                  <Text style={styles.resultCardDesc}>생리 전 PMS 시기입니다. 호르몬 변화로 붓기·피로·예민함이 나타날 수 있어요.</Text>
-                  <View style={styles.foodSection}>
+                  <Text style={[styles.resultCardDesc, {color: C.hint}]}>생리 전 PMS 시기입니다. 호르몬 변화로 붓기·피로·예민함이 나타날 수 있어요.</Text>
+                  <View style={[styles.foodSection, {borderTopColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)'}]}>
                     <View style={styles.foodTitleRow}>
                       <Icon name="food-apple" size={14} color="#C2185B" style={{marginRight: 4}} />
                       <Text style={[styles.foodTitle, {color: '#F43F5E'}]}>추천 음식</Text>
                     </View>
-                    <Text style={styles.foodItem}>• 마그네슘 (생리통 완화) — 바나나, 아몬드, 다크초콜릿</Text>
-                    <Text style={styles.foodItem}>• 오메가3 (염증 완화) — 연어, 고등어, 아마씨</Text>
-                    <Text style={styles.foodItem}>• 비타민 B6 — 닭고기, 감자, 아보카도</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 마그네슘 (생리통 완화) — 바나나, 아몬드, 다크초콜릿</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 오메가3 (염증 완화) — 연어, 고등어, 아마씨</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 비타민 B6 — 닭고기, 감자, 아보카도</Text>
                     <Text style={[styles.foodItem, {color: '#e57373'}]}>• 자제 — 카페인, 짠 음식, 알코올</Text>
                   </View>
                 </>
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.resultCard, styles.ovulationCard]} onPress={() => toggleCard('ovulation')} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={[styles.resultCard, {backgroundColor: cardBg('#F3EEFF', '#1a0e2e'), borderColor: '#8B5CF6'}]}
+              onPress={() => toggleCard('ovulation')}
+              activeOpacity={0.8}>
               <View style={styles.resultCardRow}>
                 <View style={styles.resultCardLabelRow}>
                   <Icon name="egg" size={15} color="#7B1FA2" style={{marginRight: 5}} />
                   <Text style={[styles.resultCardLabel, {color: '#8B5CF6'}]}>배란 예정일</Text>
                 </View>
-                <Icon name={expandedCard === 'ovulation' ? 'chevron-up' : 'chevron-down'} size={18} color="#aaa" />
+                <Icon name={expandedCard === 'ovulation' ? 'chevron-up' : 'chevron-down'} size={18} color={C.hint} />
               </View>
               <Text style={[styles.resultCardDate, {color: '#7C3AED'}]}>{formatDate(result.ovulation)}</Text>
               {expandedCard === 'ovulation' && (
                 <>
-                  <Text style={styles.resultCardDesc}>난자가 방출되는 날로, 임신 가능성이 가장 높은 시기입니다.</Text>
-                  <View style={styles.foodSection}>
+                  <Text style={[styles.resultCardDesc, {color: C.hint}]}>난자가 방출되는 날로, 임신 가능성이 가장 높은 시기입니다.</Text>
+                  <View style={[styles.foodSection, {borderTopColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)'}]}>
                     <View style={styles.foodTitleRow}>
                       <Icon name="food-apple" size={14} color="#7B1FA2" style={{marginRight: 4}} />
                       <Text style={[styles.foodTitle, {color: '#8B5CF6'}]}>추천 음식</Text>
                     </View>
-                    <Text style={styles.foodItem}>• 엽산 — 시금치, 아스파라거스, 브로콜리</Text>
-                    <Text style={styles.foodItem}>• 아연 — 굴, 호박씨, 쇠고기</Text>
-                    <Text style={styles.foodItem}>• 비타민 C — 파프리카, 키위, 딸기</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 엽산 — 시금치, 아스파라거스, 브로콜리</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 아연 — 굴, 호박씨, 쇠고기</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 비타민 C — 파프리카, 키위, 딸기</Text>
                   </View>
                 </>
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.resultCard, styles.fertileCard]} onPress={() => toggleCard('fertile')} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={[styles.resultCard, {backgroundColor: cardBg('#ECFDF5', '#0a1f16'), borderColor: '#10B981'}]}
+              onPress={() => toggleCard('fertile')}
+              activeOpacity={0.8}>
               <View style={styles.resultCardRow}>
                 <View style={styles.resultCardLabelRow}>
                   <Icon name="sprout" size={15} color="#2E7D32" style={{marginRight: 5}} />
                   <Text style={[styles.resultCardLabel, {color: '#10B981'}]}>가임기</Text>
                 </View>
-                <Icon name={expandedCard === 'fertile' ? 'chevron-up' : 'chevron-down'} size={18} color="#aaa" />
+                <Icon name={expandedCard === 'fertile' ? 'chevron-up' : 'chevron-down'} size={18} color={C.hint} />
               </View>
               <Text style={[styles.resultCardDate, {color: '#059669'}]}>
                 {formatDateShort(result.fertileStart)} ~ {formatDateShort(result.fertileEnd)}
               </Text>
-              <Text style={styles.resultCardSub}>
+              <Text style={[styles.resultCardSub, {color: C.subtext}]}>
                 {formatDate(result.fertileStart)} ~ {formatDate(result.fertileEnd)}
               </Text>
               {expandedCard === 'fertile' && (
                 <>
-                  <Text style={styles.resultCardDesc}>임신 가능성이 있는 기간입니다. 정자는 체내에서 최대 5일간 생존할 수 있습니다.</Text>
-                  <View style={styles.foodSection}>
+                  <Text style={[styles.resultCardDesc, {color: C.hint}]}>임신 가능성이 있는 기간입니다. 정자는 체내에서 최대 5일간 생존할 수 있습니다.</Text>
+                  <View style={[styles.foodSection, {borderTopColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)'}]}>
                     <View style={styles.foodTitleRow}>
                       <Icon name="food-apple" size={14} color="#2E7D32" style={{marginRight: 4}} />
                       <Text style={[styles.foodTitle, {color: '#10B981'}]}>추천 음식</Text>
                     </View>
-                    <Text style={styles.foodItem}>• 철분 — 시금치, 렌틸콩, 두부</Text>
-                    <Text style={styles.foodItem}>• 비타민 E — 아몬드, 해바라기씨, 아보카도</Text>
-                    <Text style={styles.foodItem}>• 항산화 — 블루베리, 석류, 브로콜리</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 철분 — 시금치, 렌틸콩, 두부</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 비타민 E — 아몬드, 해바라기씨, 아보카도</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 항산화 — 블루베리, 석류, 브로콜리</Text>
                   </View>
                 </>
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.resultCard, styles.safeCard]} onPress={() => toggleCard('safe')} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={[styles.resultCard, {backgroundColor: cardBg('#EFF6FF', '#0a1525'), borderColor: '#3B82F6'}]}
+              onPress={() => toggleCard('safe')}
+              activeOpacity={0.8}>
               <View style={styles.resultCardRow}>
                 <View style={styles.resultCardLabelRow}>
                   <Icon name="shield-check" size={15} color="#1565C0" style={{marginRight: 5}} />
                   <Text style={[styles.resultCardLabel, {color: '#3B82F6'}]}>안전기 (생리 후)</Text>
                 </View>
-                <Icon name={expandedCard === 'safe' ? 'chevron-up' : 'chevron-down'} size={18} color="#aaa" />
+                <Icon name={expandedCard === 'safe' ? 'chevron-up' : 'chevron-down'} size={18} color={C.hint} />
               </View>
               <Text style={[styles.resultCardDate, {color: '#2563EB'}]}>
                 {formatDateShort(result.safeStart)} ~ {formatDateShort(result.safeEnd)}
               </Text>
-              <Text style={styles.resultCardSub}>
+              <Text style={[styles.resultCardSub, {color: C.subtext}]}>
                 {formatDate(result.safeStart)} ~ {formatDate(result.safeEnd)}
               </Text>
               {expandedCard === 'safe' && (
                 <>
-                  <Text style={styles.resultCardDesc}>생리 직후로 임신 가능성이 낮은 시기입니다. 단, 주기가 불규칙하면 안전을 보장할 수 없습니다.</Text>
-                  <View style={styles.foodSection}>
+                  <Text style={[styles.resultCardDesc, {color: C.hint}]}>생리 직후로 임신 가능성이 낮은 시기입니다. 단, 주기가 불규칙하면 안전을 보장할 수 없습니다.</Text>
+                  <View style={[styles.foodSection, {borderTopColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)'}]}>
                     <View style={styles.foodTitleRow}>
                       <Icon name="food-apple" size={14} color="#1565C0" style={{marginRight: 4}} />
                       <Text style={[styles.foodTitle, {color: '#3B82F6'}]}>추천 음식</Text>
                     </View>
-                    <Text style={styles.foodItem}>• 칼슘 — 우유, 치즈, 두부</Text>
-                    <Text style={styles.foodItem}>• 프로바이오틱스 — 요거트, 김치, 된장</Text>
-                    <Text style={styles.foodItem}>• 비타민 D — 연어, 달걀, 표고버섯</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 칼슘 — 우유, 치즈, 두부</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 프로바이오틱스 — 요거트, 김치, 된장</Text>
+                    <Text style={[styles.foodItem, {color: C.subtext}]}>• 비타민 D — 연어, 달걀, 표고버섯</Text>
                   </View>
                 </>
               )}
             </TouchableOpacity>
 
-            <View style={styles.notice}>
+            <View style={[styles.notice, {backgroundColor: isDark ? '#1a1500' : '#FFF9C4'}]}>
               <Icon name="alert-circle-outline" size={16} color="#F9A825" style={{marginTop: 1}} />
-              <Text style={styles.noticeText}>
+              <Text style={[styles.noticeText, {color: isDark ? '#c8a800' : '#5D4037'}]}>
                 이 계산기는 참고용이며, 실제 주기는 개인마다 다를 수 있습니다. 정확한 정보는 의료 전문가에게 문의하세요.
               </Text>
             </View>
           </View>
         )}
       </ScrollView>
-      <View style={styles.calcButtonContainer}>
+      <View style={[styles.calcButtonContainer, {backgroundColor: C.bg, borderTopColor: C.border}]}>
         <TouchableOpacity style={styles.calcButton} onPress={calculate}>
           <Text style={styles.calcButtonText}>계산하기</Text>
         </TouchableOpacity>
@@ -352,15 +368,13 @@ export default function CalculatorScreen(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  safe: {flex: 1, backgroundColor: PINK},
-  scroll: {paddingBottom: 24, backgroundColor: '#FFF5F8'},
+  safe: {flex: 1},
+  scroll: {paddingBottom: 24},
   calcButtonContainer: {
-    backgroundColor: '#FFF5F8',
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f0e0e6',
   },
   header: {
     backgroundColor: PINK,
@@ -385,7 +399,6 @@ const styles = StyleSheet.create({
   headerTitle: {fontSize: 26, fontWeight: '700', color: '#fff', marginBottom: 6},
   headerSub: {fontSize: 14, color: PINK_LIGHT},
   card: {
-    backgroundColor: '#fff',
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 16,
@@ -396,11 +409,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  label: {fontSize: 15, fontWeight: '600', color: '#333', marginBottom: 12},
+  label: {fontSize: 15, fontWeight: '600', marginBottom: 12},
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: PINK_PALE,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 16,
@@ -416,8 +428,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stepBtnText: {color: '#fff', fontSize: 22, fontWeight: '700', lineHeight: 26},
-  stepValue: {fontSize: 22, fontWeight: '700', color: '#333', minWidth: 60, textAlign: 'center'},
-  hint: {fontSize: 12, color: '#999', marginTop: 10, textAlign: 'center'},
+  stepValue: {fontSize: 22, fontWeight: '700', minWidth: 60, textAlign: 'center'},
+  hint: {fontSize: 12, marginTop: 10, textAlign: 'center'},
   calcButton: {
     backgroundColor: PINK,
     borderRadius: 16,
@@ -438,7 +450,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 4,
   },
-  resultTitle: {fontSize: 18, fontWeight: '700', color: '#333'},
+  resultTitle: {fontSize: 18, fontWeight: '700'},
   resultCard: {
     marginHorizontal: 16,
     marginTop: 12,
@@ -451,29 +463,23 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
-  nextPeriodCard: {backgroundColor: '#FFF1F3', borderColor: '#F43F5E'},
-  ovulationCard: {backgroundColor: '#F3EEFF', borderColor: '#8B5CF6'},
-  fertileCard: {backgroundColor: '#ECFDF5', borderColor: '#10B981'},
-  safeCard: {backgroundColor: '#EFF6FF', borderColor: '#3B82F6'},
-  resultCardLabel: {fontSize: 13, color: '#666', marginBottom: 6, fontWeight: '500'},
-  resultCardDate: {fontSize: 20, fontWeight: '700', color: '#222', marginBottom: 4},
-  resultCardSub: {fontSize: 13, color: '#888'},
-  resultCardDesc: {fontSize: 12, color: '#999', marginTop: 8, lineHeight: 17},
+  resultCardLabel: {fontSize: 13, marginBottom: 6, fontWeight: '500'},
+  resultCardDate: {fontSize: 20, fontWeight: '700', marginBottom: 4},
+  resultCardSub: {fontSize: 13},
+  resultCardDesc: {fontSize: 12, marginTop: 8, lineHeight: 17},
   resultCardRow: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'},
   resultCardLabelRow: {flexDirection: 'row', alignItems: 'center'},
   foodSection: {
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.07)',
   },
   foodTitleRow: {flexDirection: 'row', alignItems: 'center', marginBottom: 6},
   foodTitle: {fontSize: 12, fontWeight: '700'},
-  foodItem: {fontSize: 12, color: '#666', lineHeight: 20},
+  foodItem: {fontSize: 12, lineHeight: 20},
   notice: {
     marginHorizontal: 16,
     marginTop: 16,
-    backgroundColor: '#FFF9C4',
     borderRadius: 12,
     padding: 14,
     borderLeftWidth: 4,
@@ -482,9 +488,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 8,
   },
-  noticeText: {fontSize: 12, color: '#5D4037', lineHeight: 18, flex: 1},
+  noticeText: {fontSize: 12, lineHeight: 18, flex: 1},
   modalOverlay: {flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end'},
-  modalContent: {backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30},
+  modalContent: {borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30},
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -492,9 +498,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
-  modalTitle: {fontSize: 16, fontWeight: '600', color: '#333'},
-  modalCancel: {fontSize: 16, color: '#999'},
+  modalTitle: {fontSize: 16, fontWeight: '600'},
+  modalCancel: {fontSize: 16},
   modalConfirm: {fontSize: 16, color: PINK, fontWeight: '600'},
 });

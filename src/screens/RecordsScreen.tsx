@@ -13,7 +13,8 @@ import DateTimePicker, {DateTimePickerEvent} from '@react-native-community/datet
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Toast from 'react-native-toast-message';
 import {useCycleStore, PeriodRecord} from '../store/cycleStore';
-import {PINK, PINK_PALE, PINK_LIGHT} from '../theme';
+import {PINK, PINK_LIGHT} from '../theme';
+import {useAppTheme} from '../hooks/useAppTheme';
 
 function formatDate(date: Date): string {
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
@@ -48,6 +49,7 @@ function avgCycle(records: PeriodRecord[]): number | null {
 }
 
 export default function RecordsScreen(): React.JSX.Element {
+  const {C, isDark} = useAppTheme();
   const {records, addRecord, deleteRecord} = useCycleStore();
   const [showPicker, setShowPicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -98,7 +100,7 @@ export default function RecordsScreen(): React.JSX.Element {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: C.bg}]}>
       {/* 헤더 */}
       <View style={styles.header}>
         <Icon name="notebook-edit" size={36} color="#fff" style={{marginBottom: 6}} />
@@ -116,8 +118,8 @@ export default function RecordsScreen(): React.JSX.Element {
         {sorted.length === 0 ? (
           <View style={styles.empty}>
             <Icon name="calendar-plus" size={56} color={PINK_LIGHT} />
-            <Text style={styles.emptyTitle}>기록이 없어요</Text>
-            <Text style={styles.emptySub}>아래 + 버튼으로 생리 시작일을 추가해보세요</Text>
+            <Text style={[styles.emptyTitle, {color: C.hint}]}>기록이 없어요</Text>
+            <Text style={[styles.emptySub, {color: C.hint}]}>아래 + 버튼으로 생리 시작일을 추가해보세요</Text>
           </View>
         ) : (
           sorted.map((record, index) => {
@@ -129,27 +131,27 @@ export default function RecordsScreen(): React.JSX.Element {
               <View key={record.id} style={styles.recordCard}>
                 <View style={styles.recordLeft}>
                   <View style={styles.dot} />
-                  {index < sorted.length - 1 && <View style={styles.line} />}
+                  {index < sorted.length - 1 && <View style={[styles.line, {backgroundColor: isDark ? '#3a1525' : '#FFF1F3'}]} />}
                 </View>
-                <View style={styles.recordBody}>
+                <View style={[styles.recordBody, {backgroundColor: C.card}]}>
                   <View style={styles.recordRow}>
-                    <Text style={styles.recordDate}>{formatDateShort(record.startDate)}</Text>
+                    <Text style={[styles.recordDate, {color: C.text}]}>{formatDateShort(record.startDate)}</Text>
                     {ago === 0 ? (
                       <View style={styles.todayBadge}><Text style={styles.todayBadgeText}>오늘</Text></View>
                     ) : (
-                      <Text style={styles.recordAgo}>{ago}일 전</Text>
+                      <Text style={[styles.recordAgo, {color: C.hint}]}>{ago}일 전</Text>
                     )}
                   </View>
-                  <Text style={styles.recordFull}>{formatDate(record.startDate)}</Text>
+                  <Text style={[styles.recordFull, {color: C.hint}]}>{formatDate(record.startDate)}</Text>
                   {gap !== null && (
                     <View style={styles.gapRow}>
-                      <Icon name="arrow-up" size={11} color="#aaa" />
-                      <Text style={styles.gapText}>이전 주기까지 {gap}일</Text>
+                      <Icon name="arrow-up" size={11} color={C.hint} />
+                      <Text style={[styles.gapText, {color: C.hint}]}>이전 주기까지 {gap}일</Text>
                     </View>
                   )}
                 </View>
                 <TouchableOpacity onPress={() => confirmDelete(record)} style={styles.deleteBtn}>
-                  <Icon name="trash-can-outline" size={18} color="#ddd" />
+                  <Icon name="trash-can-outline" size={18} color={C.hint} />
                 </TouchableOpacity>
               </View>
             );
@@ -183,12 +185,12 @@ export default function RecordsScreen(): React.JSX.Element {
       {/* iOS picker modal */}
       <Modal visible={showPicker && Platform.OS === 'ios'} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
+          <View style={[styles.modalContent, {backgroundColor: C.card}]}>
+            <View style={[styles.modalHeader, {borderBottomColor: C.border}]}>
               <TouchableOpacity onPress={() => setShowPicker(false)}>
-                <Text style={styles.modalCancel}>취소</Text>
+                <Text style={[styles.modalCancel, {color: C.hint}]}>취소</Text>
               </TouchableOpacity>
-              <Text style={styles.modalTitle}>생리 시작일</Text>
+              <Text style={[styles.modalTitle, {color: C.text}]}>생리 시작일</Text>
               <TouchableOpacity onPress={confirmAdd}>
                 <Text style={styles.modalConfirm}>추가</Text>
               </TouchableOpacity>
@@ -204,17 +206,12 @@ export default function RecordsScreen(): React.JSX.Element {
           </View>
         </View>
       </Modal>
-
-      {/* Android 추가 확인 */}
-      {Platform.OS === 'android' && !showPicker && selectedDate < new Date() && records.length >= 0 && false && (
-        <View />
-      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#FFF5F8'},
+  container: {flex: 1},
   header: {
     backgroundColor: PINK,
     paddingTop: 20,
@@ -234,8 +231,8 @@ const styles = StyleSheet.create({
   avgText: {fontSize: 13, fontWeight: '700', color: PINK},
   list: {paddingTop: 16, paddingHorizontal: 16},
   empty: {alignItems: 'center', paddingTop: 80, gap: 12},
-  emptyTitle: {fontSize: 18, fontWeight: '700', color: '#ccc'},
-  emptySub: {fontSize: 13, color: '#bbb', textAlign: 'center'},
+  emptyTitle: {fontSize: 18, fontWeight: '700'},
+  emptySub: {fontSize: 13, textAlign: 'center'},
   recordCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -250,10 +247,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: PINK_LIGHT,
   },
-  line: {width: 2, flex: 1, backgroundColor: PINK_PALE, marginVertical: 2, minHeight: 40},
+  line: {width: 2, flex: 1, marginVertical: 2, minHeight: 40},
   recordBody: {
     flex: 1,
-    backgroundColor: '#fff',
     borderRadius: 14,
     padding: 14,
     marginLeft: 10,
@@ -265,9 +261,9 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   recordRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'},
-  recordDate: {fontSize: 18, fontWeight: '700', color: '#222'},
-  recordAgo: {fontSize: 12, color: '#aaa'},
-  recordFull: {fontSize: 12, color: '#bbb', marginTop: 2},
+  recordDate: {fontSize: 18, fontWeight: '700'},
+  recordAgo: {fontSize: 12},
+  recordFull: {fontSize: 12, marginTop: 2},
   todayBadge: {
     backgroundColor: PINK,
     borderRadius: 10,
@@ -276,7 +272,7 @@ const styles = StyleSheet.create({
   },
   todayBadgeText: {fontSize: 11, color: '#fff', fontWeight: '700'},
   gapRow: {flexDirection: 'row', alignItems: 'center', marginTop: 6, gap: 3},
-  gapText: {fontSize: 11, color: '#bbb'},
+  gapText: {fontSize: 11},
   deleteBtn: {padding: 12, marginLeft: 4},
   fab: {
     position: 'absolute',
@@ -296,7 +292,6 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end'},
   modalContent: {
-    backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 30,
@@ -308,9 +303,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
-  modalTitle: {fontSize: 16, fontWeight: '600', color: '#333'},
-  modalCancel: {fontSize: 16, color: '#999'},
+  modalTitle: {fontSize: 16, fontWeight: '600'},
+  modalCancel: {fontSize: 16},
   modalConfirm: {fontSize: 16, color: PINK, fontWeight: '700'},
 });

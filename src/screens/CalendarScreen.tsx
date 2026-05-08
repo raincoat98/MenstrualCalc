@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Toast from 'react-native-toast-message';
 import {useCycleStore} from '../store/cycleStore';
 import {PINK, PINK_PALE} from '../theme';
+import {useAppTheme} from '../hooks/useAppTheme';
 
 function formatDate(date: Date): string {
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
@@ -17,7 +18,7 @@ const PHASE_STYLE: Record<DayPhase, {bg: string; text: string; label: string}> =
   ovulation: {bg: '#EDE9FE', text: '#7C3AED', label: '배란'},
   fertile:   {bg: '#D1FAE5', text: '#059669', label: '가임기'},
   safe:      {bg: '#DBEAFE', text: '#2563EB', label: '안전기'},
-  luteal:    {bg: 'transparent', text: '#555', label: ''},
+  luteal:    {bg: 'transparent', text: '', label: ''},
 };
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -54,6 +55,7 @@ function getFirstWeekday(year: number, month: number) {
 }
 
 export default function CalendarScreen(): React.JSX.Element {
+  const {C, isDark} = useAppTheme();
   const {lastPeriod: storedPeriod, cycleLength: storedCycle, periodLength: storedPeriodLen, hasData, apply, addRecord, setCycleLength, setPeriodLength} = useCycleStore();
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -132,7 +134,7 @@ export default function CalendarScreen(): React.JSX.Element {
     day === todayDate && viewMonth === todayMonth && viewYear === todayYear;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: C.bg}]}>
       {/* 고정 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={prevMonth} style={styles.navBtn}>
@@ -155,12 +157,12 @@ export default function CalendarScreen(): React.JSX.Element {
           style={styles.ymOverlay}
           activeOpacity={1}
           onPress={() => setShowYearMonth(false)}>
-          <View style={styles.ymModal}>
+          <View style={[styles.ymModal, {backgroundColor: C.card}]}>
             <View style={styles.ymYearRow}>
               <TouchableOpacity onPress={() => setPickerYear(y => y - 1)} style={styles.ymNavBtn}>
                 <Icon name="chevron-left" size={22} color={PINK} />
               </TouchableOpacity>
-              <Text style={styles.ymYearText}>{pickerYear}년</Text>
+              <Text style={[styles.ymYearText, {color: C.text}]}>{pickerYear}년</Text>
               <TouchableOpacity onPress={() => setPickerYear(y => y + 1)} style={styles.ymNavBtn}>
                 <Icon name="chevron-right" size={22} color={PINK} />
               </TouchableOpacity>
@@ -172,7 +174,11 @@ export default function CalendarScreen(): React.JSX.Element {
                 return (
                   <TouchableOpacity
                     key={i}
-                    style={[styles.ymMonthCell, isSelected && styles.ymMonthSelected]}
+                    style={[
+                      styles.ymMonthCell,
+                      {backgroundColor: isDark ? '#2a2a42' : '#f5f5f5'},
+                      isSelected && styles.ymMonthSelected,
+                    ]}
                     onPress={() => {
                       setViewYear(pickerYear);
                       setViewMonth(i);
@@ -180,6 +186,7 @@ export default function CalendarScreen(): React.JSX.Element {
                     }}>
                     <Text style={[
                       styles.ymMonthText,
+                      {color: C.text},
                       isSelected && styles.ymMonthTextSelected,
                       isCurrentMonth && !isSelected && styles.ymMonthTextToday,
                     ]}>
@@ -193,146 +200,162 @@ export default function CalendarScreen(): React.JSX.Element {
         </TouchableOpacity>
       </Modal>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-      {/* 접이식 설정 패널 */}
-      <TouchableOpacity style={styles.panelToggle} onPress={() => setPanelOpen(o => !o)} activeOpacity={0.8}>
-        <View style={styles.panelToggleRow}>
-          <Icon name="tune" size={16} color={PINK} style={{marginRight: 6}} />
-          <Text style={styles.panelToggleText}>주기 설정</Text>
-        </View>
-        <Icon name={panelOpen ? 'chevron-up' : 'chevron-down'} size={18} color={PINK} />
-      </TouchableOpacity>
-
-      {panelOpen && (
-        <View style={styles.panel}>
-          {/* 마지막 생리일 */}
-          <Text style={styles.panelLabel}>마지막 생리 시작일</Text>
-          <TouchableOpacity style={styles.dateButton} onPress={() => { setTempDate(localPeriod); setShowPicker(true); }}>
-            <Icon name="calendar-month" size={18} color={PINK} style={{marginRight: 8}} />
-            <Text style={styles.dateButtonText}>{formatDate(localPeriod)}</Text>
-          </TouchableOpacity>
-
-          {showPicker && Platform.OS === 'android' && (
-            <DateTimePicker value={localPeriod} mode="date" display="default" onChange={onDateChange} maximumDate={new Date()} />
-          )}
-          <Modal visible={showPicker && Platform.OS === 'ios'} transparent animationType="slide">
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContent}>
-                <View style={styles.modalHeader}>
-                  <TouchableOpacity onPress={() => setShowPicker(false)}><Text style={styles.modalCancel}>취소</Text></TouchableOpacity>
-                  <Text style={styles.modalTitle}>날짜 선택</Text>
-                  <TouchableOpacity onPress={() => { setLocalPeriod(tempDate); setShowPicker(false); }}><Text style={styles.modalConfirm}>확인</Text></TouchableOpacity>
-                </View>
-                <DateTimePicker value={tempDate} mode="date" display="spinner" onChange={onDateChange} maximumDate={new Date()} locale="ko-KR" />
-              </View>
-            </View>
-          </Modal>
-
-          {/* 주기 / 기간 스테퍼 */}
-          <View style={styles.stepperRow}>
-            <View style={styles.stepperItem}>
-              <Text style={styles.panelLabel}>주기</Text>
-              <View style={styles.stepper}>
-                <TouchableOpacity style={styles.stepBtn} onPress={() => setCycleLength(Math.max(21, storedCycle - 1))}>
-                  <Text style={styles.stepBtnText}>−</Text>
-                </TouchableOpacity>
-                <Text style={styles.stepValue}>{storedCycle}일</Text>
-                <TouchableOpacity style={styles.stepBtn} onPress={() => setCycleLength(Math.min(45, storedCycle + 1))}>
-                  <Text style={styles.stepBtnText}>+</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={styles.stepperItem}>
-              <Text style={styles.panelLabel}>생리 기간</Text>
-              <View style={styles.stepper}>
-                <TouchableOpacity style={styles.stepBtn} onPress={() => setPeriodLength(Math.max(2, storedPeriodLen - 1))}>
-                  <Text style={styles.stepBtnText}>−</Text>
-                </TouchableOpacity>
-                <Text style={styles.stepValue}>{storedPeriodLen}일</Text>
-                <TouchableOpacity style={styles.stepBtn} onPress={() => setPeriodLength(Math.min(10, storedPeriodLen + 1))}>
-                  <Text style={styles.stepBtnText}>+</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+      <ScrollView style={[styles.scroll, {backgroundColor: C.bg}]} contentContainerStyle={styles.content}>
+        {/* 접이식 설정 패널 */}
+        <TouchableOpacity
+          style={[styles.panelToggle, {backgroundColor: C.card}]}
+          onPress={() => setPanelOpen(o => !o)}
+          activeOpacity={0.8}>
+          <View style={styles.panelToggleRow}>
+            <Icon name="tune" size={16} color={PINK} style={{marginRight: 6}} />
+            <Text style={styles.panelToggleText}>주기 설정</Text>
           </View>
+          <Icon name={panelOpen ? 'chevron-up' : 'chevron-down'} size={18} color={PINK} />
+        </TouchableOpacity>
 
-          <TouchableOpacity style={styles.applyBtn} onPress={applySettings}>
-            <Text style={styles.applyBtnText}>달력에 적용</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+        {panelOpen && (
+          <View style={[styles.panel, {backgroundColor: C.card}]}>
+            <Text style={[styles.panelLabel, {color: C.subtext}]}>마지막 생리 시작일</Text>
+            <TouchableOpacity
+              style={[styles.dateButton, {backgroundColor: isDark ? '#3a1020' : PINK_PALE}]}
+              onPress={() => { setTempDate(localPeriod); setShowPicker(true); }}>
+              <Icon name="calendar-month" size={18} color={PINK} style={{marginRight: 8}} />
+              <Text style={styles.dateButtonText}>{formatDate(localPeriod)}</Text>
+            </TouchableOpacity>
 
-      <View style={styles.calendarCard} {...panResponder.panHandlers}>
-        {/* 요일 헤더 */}
-        <View style={styles.weekRow}>
-          {WEEKDAYS.map((d, i) => (
-            <Text
-              key={d}
-              style={[styles.weekday, i === 0 && {color: '#E53935'}, i === 6 && {color: '#1565C0'}]}>
-              {d}
-            </Text>
-          ))}
-        </View>
-
-        {/* 날짜 그리드 */}
-        {Array.from({length: cells.length / 7}, (_, row) => (
-          <View key={row} style={styles.weekRow}>
-            {cells.slice(row * 7, row * 7 + 7).map((day, col) => {
-              if (!day) return <View key={col} style={styles.dayCell} />;
-
-              const date = new Date(viewYear, viewMonth, day);
-              const phase = hasData
-                ? getDayPhase(date, storedPeriod, storedCycle, storedPeriodLen)
-                : 'luteal';
-              const ps = PHASE_STYLE[phase];
-              const isSun = col === 0;
-              const isSat = col === 6;
-
-              return (
-                <View key={col} style={styles.dayCell}>
-                  <View style={[styles.dayBg, {backgroundColor: ps.bg}]}>
-                    <Text
-                      style={[
-                        styles.dayText,
-                        {color: ps.text || (isSun ? '#E53935' : isSat ? '#1565C0' : '#333')},
-                        isToday(day) && styles.todayText,
-                      ]}>
-                      {day}
-                    </Text>
-                    {isToday(day) && <View style={styles.todayDot} />}
+            {showPicker && Platform.OS === 'android' && (
+              <DateTimePicker value={localPeriod} mode="date" display="default" onChange={onDateChange} maximumDate={new Date()} />
+            )}
+            <Modal visible={showPicker && Platform.OS === 'ios'} transparent animationType="slide">
+              <View style={styles.modalOverlay}>
+                <View style={[styles.modalContent, {backgroundColor: C.card}]}>
+                  <View style={[styles.modalHeader, {borderBottomColor: C.border}]}>
+                    <TouchableOpacity onPress={() => setShowPicker(false)}>
+                      <Text style={[styles.modalCancel, {color: C.hint}]}>취소</Text>
+                    </TouchableOpacity>
+                    <Text style={[styles.modalTitle, {color: C.text}]}>날짜 선택</Text>
+                    <TouchableOpacity onPress={() => { setLocalPeriod(tempDate); setShowPicker(false); }}>
+                      <Text style={styles.modalConfirm}>확인</Text>
+                    </TouchableOpacity>
                   </View>
+                  <DateTimePicker value={tempDate} mode="date" display="spinner" onChange={onDateChange} maximumDate={new Date()} locale="ko-KR" />
                 </View>
-              );
-            })}
-          </View>
-        ))}
-      </View>
+              </View>
+            </Modal>
 
-      {/* 범례 */}
-      <View style={styles.legend}>
-        {(Object.entries(PHASE_STYLE) as [DayPhase, typeof PHASE_STYLE[DayPhase]][])
-          .filter(([, v]) => v.label)
-          .map(([phase, v]) => (
-            <View key={phase} style={styles.legendItem}>
-              <View style={[styles.legendDot, {backgroundColor: v.bg, borderColor: v.text}]} />
-              <Text style={styles.legendText}>{v.label}</Text>
+            {/* 주기 / 기간 스테퍼 */}
+            <View style={styles.stepperRow}>
+              <View style={styles.stepperItem}>
+                <Text style={[styles.panelLabel, {color: C.subtext}]}>주기</Text>
+                <View style={styles.stepper}>
+                  <TouchableOpacity style={styles.stepBtn} onPress={() => setCycleLength(Math.max(21, storedCycle - 1))}>
+                    <Text style={styles.stepBtnText}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={[styles.stepValue, {color: C.text}]}>{storedCycle}일</Text>
+                  <TouchableOpacity style={styles.stepBtn} onPress={() => setCycleLength(Math.min(45, storedCycle + 1))}>
+                    <Text style={styles.stepBtnText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={styles.stepperItem}>
+                <Text style={[styles.panelLabel, {color: C.subtext}]}>생리 기간</Text>
+                <View style={styles.stepper}>
+                  <TouchableOpacity style={styles.stepBtn} onPress={() => setPeriodLength(Math.max(2, storedPeriodLen - 1))}>
+                    <Text style={styles.stepBtnText}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={[styles.stepValue, {color: C.text}]}>{storedPeriodLen}일</Text>
+                  <TouchableOpacity style={styles.stepBtn} onPress={() => setPeriodLength(Math.min(10, storedPeriodLen + 1))}>
+                    <Text style={styles.stepBtnText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+
+            <TouchableOpacity style={styles.applyBtn} onPress={applySettings}>
+              <Text style={styles.applyBtnText}>달력에 적용</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <View style={[styles.calendarCard, {backgroundColor: C.card}]} {...panResponder.panHandlers}>
+          {/* 요일 헤더 */}
+          <View style={styles.weekRow}>
+            {WEEKDAYS.map((d, i) => (
+              <Text
+                key={d}
+                style={[
+                  styles.weekday,
+                  {color: C.subtext},
+                  i === 0 && {color: '#E53935'},
+                  i === 6 && {color: '#1565C0'},
+                ]}>
+                {d}
+              </Text>
+            ))}
+          </View>
+
+          {/* 날짜 그리드 */}
+          {Array.from({length: cells.length / 7}, (_, row) => (
+            <View key={row} style={styles.weekRow}>
+              {cells.slice(row * 7, row * 7 + 7).map((day, col) => {
+                if (!day) return <View key={col} style={styles.dayCell} />;
+
+                const date = new Date(viewYear, viewMonth, day);
+                const phase = hasData
+                  ? getDayPhase(date, storedPeriod, storedCycle, storedPeriodLen)
+                  : 'luteal';
+                const ps = PHASE_STYLE[phase];
+                const isSun = col === 0;
+                const isSat = col === 6;
+                const dayColor = phase === 'luteal'
+                  ? (isSun ? '#E53935' : isSat ? '#1565C0' : C.text)
+                  : ps.text;
+
+                return (
+                  <View key={col} style={styles.dayCell}>
+                    <View style={[styles.dayBg, {backgroundColor: ps.bg}]}>
+                      <Text
+                        style={[
+                          styles.dayText,
+                          {color: dayColor},
+                          isToday(day) && styles.todayText,
+                        ]}>
+                        {day}
+                      </Text>
+                      {isToday(day) && <View style={styles.todayDot} />}
+                    </View>
+                  </View>
+                );
+              })}
             </View>
           ))}
-      </View>
-
-      {!hasData && (
-        <View style={styles.emptyNotice}>
-          <Icon name="information-outline" size={18} color={PINK} style={{marginRight: 8}} />
-          <Text style={styles.emptyText}>계산기 탭에서 먼저 계산해주세요</Text>
         </View>
-      )}
+
+        {/* 범례 */}
+        <View style={styles.legend}>
+          {(Object.entries(PHASE_STYLE) as [DayPhase, typeof PHASE_STYLE[DayPhase]][])
+            .filter(([, v]) => v.label)
+            .map(([phase, v]) => (
+              <View key={phase} style={styles.legendItem}>
+                <View style={[styles.legendDot, {backgroundColor: v.bg, borderColor: v.text}]} />
+                <Text style={[styles.legendText, {color: C.subtext}]}>{v.label}</Text>
+              </View>
+            ))}
+        </View>
+
+        {!hasData && (
+          <View style={[styles.emptyNotice, {backgroundColor: isDark ? '#2a1520' : '#FCE4EC'}]}>
+            <Icon name="information-outline" size={18} color={PINK} style={{marginRight: 8}} />
+            <Text style={styles.emptyText}>계산기 탭에서 먼저 계산해주세요</Text>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#FFF5F8'},
+  container: {flex: 1},
   scroll: {flex: 1},
   content: {paddingBottom: 40},
   header: {
@@ -348,7 +371,6 @@ const styles = StyleSheet.create({
   headerTitle: {fontSize: 20, fontWeight: '700', color: '#fff'},
   ymOverlay: {flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center'},
   ymModal: {
-    backgroundColor: '#fff',
     borderRadius: 20,
     padding: 20,
     width: 280,
@@ -360,21 +382,19 @@ const styles = StyleSheet.create({
   },
   ymYearRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16},
   ymNavBtn: {padding: 8},
-  ymYearText: {fontSize: 18, fontWeight: '700', color: '#333'},
+  ymYearText: {fontSize: 18, fontWeight: '700'},
   ymMonthGrid: {flexDirection: 'row', flexWrap: 'wrap', gap: 8},
   ymMonthCell: {
     width: '22%',
     paddingVertical: 10,
     borderRadius: 10,
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
   },
   ymMonthSelected: {backgroundColor: PINK},
-  ymMonthText: {fontSize: 14, fontWeight: '600', color: '#444'},
+  ymMonthText: {fontSize: 14, fontWeight: '600'},
   ymMonthTextSelected: {color: '#fff'},
   ymMonthTextToday: {color: PINK},
   calendarCard: {
-    backgroundColor: '#fff',
     margin: 16,
     borderRadius: 16,
     padding: 12,
@@ -390,7 +410,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 12,
     fontWeight: '700',
-    color: '#666',
     paddingVertical: 8,
   },
   dayCell: {flex: 1, alignItems: 'center', paddingVertical: 3},
@@ -425,12 +444,11 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     borderWidth: 1.5,
   },
-  legendText: {fontSize: 12, color: '#555'},
+  legendText: {fontSize: 12},
   panelToggle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#fff',
     marginHorizontal: 16,
     marginTop: 12,
     borderRadius: 12,
@@ -442,7 +460,6 @@ const styles = StyleSheet.create({
   panelToggleRow: {flexDirection: 'row', alignItems: 'center'},
   panelToggleText: {fontSize: 14, fontWeight: '600', color: PINK},
   panel: {
-    backgroundColor: '#fff',
     marginHorizontal: 16,
     marginTop: 4,
     borderRadius: 12,
@@ -453,11 +470,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  panelLabel: {fontSize: 13, fontWeight: '600', color: '#555', marginBottom: 8},
+  panelLabel: {fontSize: 13, fontWeight: '600', marginBottom: 8},
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: PINK_PALE,
     borderRadius: 10,
     paddingVertical: 11,
     paddingHorizontal: 14,
@@ -476,7 +492,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stepBtnText: {color: '#fff', fontSize: 20, fontWeight: '700', lineHeight: 22},
-  stepValue: {fontSize: 16, fontWeight: '700', color: '#333', minWidth: 44, textAlign: 'center'},
+  stepValue: {fontSize: 16, fontWeight: '700', minWidth: 44, textAlign: 'center'},
   applyBtn: {
     backgroundColor: PINK,
     borderRadius: 12,
@@ -485,7 +501,7 @@ const styles = StyleSheet.create({
   },
   applyBtnText: {color: '#fff', fontSize: 15, fontWeight: '700'},
   modalOverlay: {flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end'},
-  modalContent: {backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30},
+  modalContent: {borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30},
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -493,17 +509,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
-  modalTitle: {fontSize: 16, fontWeight: '600', color: '#333'},
-  modalCancel: {fontSize: 16, color: '#999'},
+  modalTitle: {fontSize: 16, fontWeight: '600'},
+  modalCancel: {fontSize: 16},
   modalConfirm: {fontSize: 16, color: PINK, fontWeight: '600'},
   emptyNotice: {
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 16,
     marginTop: 16,
-    backgroundColor: '#FCE4EC',
     borderRadius: 12,
     padding: 14,
   },
