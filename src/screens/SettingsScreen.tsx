@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, ScrollView, StyleSheet, Switch} from 'react-native';
+import {View, Text, TouchableOpacity, ScrollView, StyleSheet, Switch, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useCycleStore} from '../store/cycleStore';
 import {PINK, PINK_PALE} from '../theme';
+import {scheduleNotifications, cancelAllNotifications, requestPermission} from '../notifications/notificationService';
 
 function SectionHeader({title}: {title: string}) {
   return <Text style={styles.sectionHeader}>{title}</Text>;
@@ -35,15 +36,31 @@ function Stepper({value, min, max, onChange}: {value: number; min: number; max: 
 }
 
 export default function SettingsScreen(): React.JSX.Element {
-  const {cycleLength, setCycleLength, periodLength, setPeriodLength} = useCycleStore();
+  const {
+    cycleLength, setCycleLength, periodLength, setPeriodLength,
+    lastPeriod, hasData,
+    notiPeriod, setNotiPeriod,
+    notiPeriodDays, setNotiPeriodDays,
+    notiFertile, setNotiFertile,
+    notiOvulation, setNotiOvulation,
+  } = useCycleStore();
 
-  const [notiPeriod, setNotiPeriod] = useState(true);
-  const [notiPeriodDays, setNotiPeriodDays] = useState(3);
-  const [notiFertile, setNotiFertile] = useState(false);
-  const [notiOvulation, setNotiOvulation] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const save = () => {
+  const save = async () => {
+    const anyEnabled = notiPeriod || notiFertile || notiOvulation;
+    if (anyEnabled) {
+      if (!hasData) {
+        Alert.alert('알림 설정', '먼저 계산기에서 생리 시작일을 입력해주세요.');
+        return;
+      }
+      await requestPermission();
+      await scheduleNotifications(lastPeriod, cycleLength, {
+        notiPeriod, notiPeriodDays, notiFertile, notiOvulation,
+      });
+    } else {
+      await cancelAllNotifications();
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -83,11 +100,11 @@ export default function SettingsScreen(): React.JSX.Element {
           <View style={styles.subRow}>
             <Text style={styles.subLabel}>몇 일 전에 알릴까요?</Text>
             <View style={styles.stepper}>
-              <TouchableOpacity style={styles.stepBtn} onPress={() => setNotiPeriodDays(v => Math.max(1, v - 1))}>
+              <TouchableOpacity style={styles.stepBtn} onPress={() => setNotiPeriodDays(Math.max(1, notiPeriodDays - 1))}>
                 <Text style={styles.stepBtnText}>−</Text>
               </TouchableOpacity>
               <Text style={styles.stepValue}>{notiPeriodDays}일 전</Text>
-              <TouchableOpacity style={styles.stepBtn} onPress={() => setNotiPeriodDays(v => Math.min(7, v + 1))}>
+              <TouchableOpacity style={styles.stepBtn} onPress={() => setNotiPeriodDays(Math.min(7, notiPeriodDays + 1))}>
                 <Text style={styles.stepBtnText}>+</Text>
               </TouchableOpacity>
             </View>
@@ -111,7 +128,7 @@ export default function SettingsScreen(): React.JSX.Element {
             thumbColor={notiOvulation ? '#7B1FA2' : '#f4f3f4'}
           />
         </SettingRow>
-        <Text style={styles.hint}>알림 기능은 곧 지원 예정이에요</Text>
+        <Text style={styles.hint}>저장하기를 눌러야 알림이 적용돼요</Text>
       </View>
 
       {/* 앱 정보 */}

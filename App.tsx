@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {StatusBar} from 'react-native';
+import {requestPermission} from './src/notifications/notificationService';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {enableScreens} from 'react-native-screens';
@@ -24,6 +25,8 @@ const ICONS: Record<string, string> = {
 };
 
 export default function App(): React.JSX.Element {
+  useEffect(() => { requestPermission(); }, []);
+
   return (
     <NavigationContainer>
       <StatusBar barStyle="light-content" backgroundColor={PINK} />
