@@ -15,6 +15,7 @@ import Toast from 'react-native-toast-message';
 import {useCycleStore, PeriodRecord, Symptom, Mood} from '../store/cycleStore';
 import {PINK, PINK_LIGHT} from '../theme';
 import {useAppTheme} from '../hooks/useAppTheme';
+import StatisticsTab from '../components/StatisticsTab';
 
 function formatDate(date: Date): string {
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
@@ -69,7 +70,7 @@ export default function RecordsScreen(): React.JSX.Element {
   const {records, addRecord, deleteRecord, dayRecords, addDayRecord, deleteDayRecord} = useCycleStore();
 
   // 탭
-  const [tab, setTab] = useState<'period' | 'symptoms'>('period');
+  const [tab, setTab] = useState<'period' | 'symptoms' | 'stats'>('period');
 
   // 생리 기록용
   const [showPeriodPicker, setShowPeriodPicker] = useState(false);
@@ -188,6 +189,12 @@ export default function RecordsScreen(): React.JSX.Element {
           <Icon name="emoticon-outline" size={15} color={tab === 'symptoms' ? PINK : C.hint} style={{marginRight: 5}} />
           <Text style={[styles.tabText, {color: tab === 'symptoms' ? PINK : C.hint}]}>증상·감정</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabBtn, tab === 'stats' && styles.tabBtnActive]}
+          onPress={() => setTab('stats')}>
+          <Icon name="chart-bar" size={15} color={tab === 'stats' ? PINK : C.hint} style={{marginRight: 5}} />
+          <Text style={[styles.tabText, {color: tab === 'stats' ? PINK : C.hint}]}>통계</Text>
+        </TouchableOpacity>
       </View>
 
       {/* ── 생리 기록 탭 ── */}
@@ -267,6 +274,9 @@ export default function RecordsScreen(): React.JSX.Element {
           </Modal>
         </>
       )}
+
+      {/* ── 통계 탭 ── */}
+      {tab === 'stats' && <StatisticsTab />}
 
       {/* ── 증상·감정 탭 ── */}
       {tab === 'symptoms' && (
