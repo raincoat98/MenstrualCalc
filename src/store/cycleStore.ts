@@ -5,6 +5,16 @@ export interface PeriodRecord {
   startDate: Date;
 }
 
+export type Symptom = 'cramps' | 'headache' | 'fatigue' | 'backPain' | 'bloating';
+export type Mood = 'good' | 'neutral' | 'sad' | 'irritable' | 'tired';
+
+export interface DayRecord {
+  id: string;
+  date: Date;
+  symptoms: Symptom[];
+  mood: Mood | null;
+}
+
 interface CycleState {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
@@ -13,6 +23,7 @@ interface CycleState {
   periodLength: number;
   hasData: boolean;
   records: PeriodRecord[];
+  dayRecords: DayRecord[];
   notiPeriod: boolean;
   notiPeriodDays: number;
   notiFertile: boolean;
@@ -27,6 +38,8 @@ interface CycleState {
   apply: (lastPeriod: Date, cycleLength: number, periodLength: number) => void;
   addRecord: (date: Date) => void;
   deleteRecord: (id: string) => void;
+  addDayRecord: (date: Date, symptoms: Symptom[], mood: Mood | null) => void;
+  deleteDayRecord: (id: string) => void;
   reset: () => void;
 }
 
@@ -38,6 +51,7 @@ export const useCycleStore = create<CycleState>((set, get) => ({
   periodLength: 5,
   hasData: false,
   records: [],
+  dayRecords: [],
   notiPeriod: false,
   notiPeriodDays: 3,
   notiFertile: false,
@@ -63,6 +77,26 @@ export const useCycleStore = create<CycleState>((set, get) => ({
   },
   deleteRecord: id =>
     set(s => ({records: s.records.filter(r => r.id !== id)})),
+  addDayRecord: (date, symptoms, mood) => {
+    const fmt = (d: Date) => d.toDateString();
+    const existing = get().dayRecords.find(r => fmt(r.date) === fmt(date));
+    if (existing) {
+      set(s => ({
+        dayRecords: s.dayRecords.map(r =>
+          r.id === existing.id ? {...r, symptoms, mood} : r,
+        ),
+      }));
+    } else {
+      const record: DayRecord = {id: Date.now().toString(), date, symptoms, mood};
+      set(s => ({
+        dayRecords: [record, ...s.dayRecords].sort(
+          (a, b) => b.date.getTime() - a.date.getTime(),
+        ),
+      }));
+    }
+  },
+  deleteDayRecord: id =>
+    set(s => ({dayRecords: s.dayRecords.filter(r => r.id !== id)})),
   reset: () =>
-    set({lastPeriod: new Date(), cycleLength: 28, periodLength: 5, hasData: false, records: []}),
+    set({lastPeriod: new Date(), cycleLength: 28, periodLength: 5, hasData: false, records: [], dayRecords: []}),
 }));
