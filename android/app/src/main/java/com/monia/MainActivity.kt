@@ -1,4 +1,4 @@
-package com.menstrualcalc
+package com.monia
 
 import android.os.Bundle
 import com.facebook.react.ReactActivity
