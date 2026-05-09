@@ -284,7 +284,7 @@ export default function RecordsScreen(): React.JSX.Element {
           <ScrollView contentContainerStyle={styles.list}>
             {dayRecords.length === 0 ? (
               <View style={styles.empty}>
-                <Text style={{fontSize: 52}}>📋</Text>
+                <Icon name="clipboard-text-outline" size={64} color="#D1A7B8" />
                 <Text style={[styles.emptyTitle, {color: C.hint}]}>기록이 없어요</Text>
                 <Text style={[styles.emptySub, {color: C.hint}]}>아래 + 버튼으로 오늘의 증상을 기록해보세요</Text>
               </View>

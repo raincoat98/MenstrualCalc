@@ -78,7 +78,7 @@ export default function StatisticsTab() {
     return (
       <ScrollView contentContainerStyle={[styles.container, {backgroundColor: C.bg}]}>
         <View style={styles.emptyWrap}>
-          <Text style={{fontSize: 52}}>📊</Text>
+          <Icon name="chart-bar" size={64} color="#D1A7B8" />
           <Text style={[styles.emptyTitle, {color: C.hint}]}>데이터가 부족해요</Text>
           <Text style={[styles.emptySub, {color: C.hint}]}>생리 기록이 2개 이상 있어야 통계를 볼 수 있어요</Text>
         </View>
